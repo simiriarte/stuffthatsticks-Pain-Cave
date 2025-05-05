@@ -65,7 +65,8 @@ body::before {
 .container.in-cave .time-input label,
 .container.in-cave .break-toggle label,
 .container.in-cave .sound-toggle span,
-.container.in-cave .volume-control span {
+.container.in-cave .volume-control span,
+.container.in-cave .break-toggle.custom span {
     color: white;
 }
 
@@ -89,8 +90,8 @@ body::before {
 }
 
 .container.in-cave .break-toggle input[type="radio"]:checked {
-    background-color: #ff8900;
-    border-color: #ff8900;
+    background-color: #1abc9c;
+    border-color: #1abc9c;
 }
 
 .container.in-cave .break-toggle.custom input[type="number"] {
@@ -149,6 +150,11 @@ h1 {
     margin-bottom: 1rem;
     position: relative;
     z-index: 1;
+    transition: color 0.3s ease;
+}
+
+.container.in-cave .time-display {
+    color: white;
 }
 
 .break-countdown {
@@ -234,9 +240,13 @@ button {
 }
 
 #toggle {
-    background-color: #007bff;
+    background-color: #ff8900;
     min-width: 140px;
     text-align: center;
+}
+
+.container:not(.in-cave) #toggle {
+    background-color: #ff8900;
 }
 
 #reset {
@@ -339,7 +349,7 @@ button:hover {
     -webkit-appearance: none;
     width: 20px;
     height: 20px;
-    border: 2px solid #0097f2;
+    border: 2px solid #ff8900;
     border-radius: 4px;
     outline: none;
     cursor: pointer;
@@ -348,7 +358,7 @@ button:hover {
 }
 
 .sound-toggle input[type="checkbox"]:checked {
-    background-color: #0097f2;
+    background-color: #ff8900;
 }
 
 .sound-toggle input[type="checkbox"]:checked::after {
@@ -384,7 +394,7 @@ button:hover {
     -webkit-appearance: none;
     width: 16px;
     height: 16px;
-    background: #0097f2;
+    background: #ff8900;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -392,7 +402,7 @@ button:hover {
 #volume-slider::-moz-range-thumb {
     width: 16px;
     height: 16px;
-    background: #0097f2;
+    background: #ff8900;
     border-radius: 50%;
     cursor: pointer;
     border: none;
@@ -491,6 +501,11 @@ button,
     border-color: #ff8900;
 }
 
+.container.in-cave .break-toggle input[type="radio"]:checked {
+    background-color: #1abc9c;
+    border-color: #1abc9c;
+}
+
 .break-toggle input[type="radio"]:checked::after {
     content: '';
     position: absolute;
@@ -586,4 +601,35 @@ button,
 
 .break-settings.collapsed .collapse-btn::before {
     display: none;
+}
+
+.reset-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.rest-mode-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rest-mode-btn:hover {
+    background-color: #0069d9;
+    color: white;
 } 

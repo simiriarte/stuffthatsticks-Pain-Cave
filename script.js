@@ -5,6 +5,7 @@ class PomodoroTimer {
         this.isRunning = false;
         this.lastBreakTime = 0;
         this.selectedBreakTime = null; // Changed from 5 * 60 to null
+        this.isRestMode = false; // Add rest mode state
         
         // Sound settings
         this.soundEnabled = true;
@@ -19,6 +20,8 @@ class PomodoroTimer {
         this.volumeSlider = document.getElementById('volume-slider');
         this.collapseToggle = document.getElementById('collapse-toggle');
         this.breakSettings = document.querySelector('.break-settings');
+        this.caveImage = document.querySelector('.cave-image');
+        this.restModeButton = document.getElementById('rest-mode');
         
         // Break time elements
         this.breakRadios = document.querySelectorAll('input[name="break-time"]');
@@ -38,6 +41,7 @@ class PomodoroTimer {
         this.toggleButton.addEventListener('click', () => this.toggle());
         this.resetButton.addEventListener('click', () => this.reset());
         this.collapseToggle.addEventListener('click', () => this.toggleCollapse());
+        this.restModeButton.addEventListener('click', () => this.enterRestMode());
         
         // Break time listeners
         this.breakRadios.forEach(radio => {
@@ -54,11 +58,7 @@ class PomodoroTimer {
         this.takeBreakButton.addEventListener('click', () => {
             this.pause();
             this.breakModal.style.display = 'none';
-            // Reset UI state
-            this.toggleButton.textContent = 'Enter Pain Cave';
-            this.toggleButton.style.backgroundColor = '#007bff'; // Blue
-            this.toggleButton.style.color = 'white';
-            document.querySelector('.container').classList.remove('in-cave');
+            this.enterRestMode();
         });
         
         this.keepGoingButton.addEventListener('click', () => {
@@ -95,7 +95,41 @@ class PomodoroTimer {
         this.lastBreakTime = this.secondsElapsed;
     }
     
+    enterRestMode() {
+        if (this.isRestMode) return; // Prevent re-entering rest mode
+        
+        this.isRestMode = true;
+        this.secondsElapsed = 0;
+        this.caveImage.src = 'images/DETOX.png';
+        this.caveImage.alt = 'Detox';
+        this.timeDisplay.style.color = '#007bff';
+        this.toggleButton.textContent = 'End Rest';
+        this.toggleButton.style.backgroundColor = '#007bff';
+        this.toggleButton.style.color = 'white';
+        this.restModeButton.textContent = 'In Rest Mode';
+        document.querySelector('.container').classList.remove('in-cave');
+        this.start();
+    }
+    
+    exitRestMode() {
+        this.isRestMode = false;
+        this.pause();
+        this.secondsElapsed = 0;
+        this.caveImage.src = 'images/PAIN CAVE.png';
+        this.caveImage.alt = 'Pain Cave';
+        this.timeDisplay.style.color = '#333';
+        this.toggleButton.textContent = 'Enter Pain Cave';
+        this.toggleButton.style.backgroundColor = '#ff8900';
+        this.toggleButton.style.color = 'white';
+        this.restModeButton.textContent = 'Rest Mode';
+    }
+    
     toggle() {
+        if (this.isRestMode) {
+            this.exitRestMode();
+            return;
+        }
+        
         if (!this.isRunning) {
             this.start();
             this.toggleButton.textContent = 'Exit Pain Cave';
@@ -105,7 +139,7 @@ class PomodoroTimer {
         } else {
             this.pause();
             this.toggleButton.textContent = 'Enter Pain Cave';
-            this.toggleButton.style.backgroundColor = '#007bff'; // Blue
+            this.toggleButton.style.backgroundColor = '#ff8900'; // Orange
             this.toggleButton.style.color = 'white';
             document.querySelector('.container').classList.remove('in-cave');
         }
@@ -182,7 +216,7 @@ class PomodoroTimer {
         this.selectedBreakTime = null; // Clear break time selection
         this.updateDisplay();
         this.toggleButton.textContent = 'Enter Pain Cave';
-        this.toggleButton.style.backgroundColor = '#007bff'; // Blue
+        this.toggleButton.style.backgroundColor = '#ff8900'; // Orange
         this.toggleButton.style.color = 'white';
         this.breakCountdown.textContent = '--:--';
         document.querySelector('.container').classList.remove('in-cave'); // Exit pain cave state
