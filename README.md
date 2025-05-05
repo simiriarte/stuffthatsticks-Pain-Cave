@@ -8,5 +8,3 @@ A simple timer built with HTML, CSS, and Java Script.
 - Timed break reminders
 - Sound on/of
 - Volume slider
-
-Test update
