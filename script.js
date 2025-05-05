@@ -91,8 +91,8 @@ class PomodoroTimer {
             this.customTimeInput.disabled = true;
             this.selectedBreakTime = parseInt(radio.value) * 60;
         }
-        // Reset lastBreakTime when break time is changed
-        this.lastBreakTime = 0;
+        // Set lastBreakTime to current time when break time is changed
+        this.lastBreakTime = this.secondsElapsed;
     }
     
     toggle() {
@@ -179,11 +179,20 @@ class PomodoroTimer {
         this.pause();
         this.secondsElapsed = 0;
         this.lastBreakTime = 0;
+        this.selectedBreakTime = null; // Clear break time selection
         this.updateDisplay();
         this.toggleButton.textContent = 'Enter Pain Cave';
         this.toggleButton.style.backgroundColor = '#007bff'; // Blue
         this.toggleButton.style.color = 'white';
         this.breakCountdown.textContent = '--:--';
+        document.querySelector('.container').classList.remove('in-cave'); // Exit pain cave state
+        
+        // Reset break time selection
+        this.breakRadios.forEach(radio => {
+            radio.checked = false;
+        });
+        this.customTimeInput.value = '';
+        this.customTimeInput.disabled = true;
     }
     
     updateDisplay() {
