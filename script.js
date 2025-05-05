@@ -4,7 +4,7 @@ class PomodoroTimer {
         this.timerId = null;
         this.isRunning = false;
         this.lastBreakTime = 0;
-        this.selectedBreakTime = 5 * 60; // Default to 5 minutes
+        this.selectedBreakTime = null; // Changed from 5 * 60 to null
         
         // Sound settings
         this.soundEnabled = true;
@@ -12,6 +12,7 @@ class PomodoroTimer {
         
         // DOM Elements
         this.timeDisplay = document.querySelector('.time-display');
+        this.breakCountdown = document.getElementById('break-countdown');
         this.toggleButton = document.getElementById('toggle');
         this.resetButton = document.getElementById('reset');
         this.soundToggle = document.getElementById('sound-toggle');
@@ -90,6 +91,8 @@ class PomodoroTimer {
             this.customTimeInput.disabled = true;
             this.selectedBreakTime = parseInt(radio.value) * 60;
         }
+        // Reset lastBreakTime when break time is changed
+        this.lastBreakTime = 0;
     }
     
     toggle() {
@@ -124,9 +127,16 @@ class PomodoroTimer {
                 this.secondsElapsed++;
                 this.updateDisplay();
                 
-                // Check for break time
-                if (this.secondsElapsed >= this.selectedBreakTime && 
+                // Check for break time only if a break time is selected
+                if (this.selectedBreakTime !== null && 
+                    this.secondsElapsed >= this.selectedBreakTime && 
                     this.secondsElapsed - this.lastBreakTime >= this.selectedBreakTime) {
+                    
+                    console.log('Break time reached:', {
+                        secondsElapsed: this.secondsElapsed,
+                        selectedBreakTime: this.selectedBreakTime,
+                        lastBreakTime: this.lastBreakTime
+                    });
                     
                     const totalMinutes = Math.floor(this.secondsElapsed / 60);
                     const hours = Math.floor(totalMinutes / 60);
@@ -173,6 +183,7 @@ class PomodoroTimer {
         this.toggleButton.textContent = 'Enter Pain Cave';
         this.toggleButton.style.backgroundColor = '#007bff'; // Blue
         this.toggleButton.style.color = 'white';
+        this.breakCountdown.textContent = '--:--';
     }
     
     updateDisplay() {
@@ -189,6 +200,20 @@ class PomodoroTimer {
         
         this.timeDisplay.textContent = timeString;
         document.title = `${timeString} - Pain Cave`;
+
+        // Update break countdown
+        if (this.selectedBreakTime !== null) {
+            const timeUntilBreak = this.selectedBreakTime - (this.secondsElapsed - this.lastBreakTime);
+            if (timeUntilBreak > 0) {
+                const breakMinutes = Math.floor(timeUntilBreak / 60);
+                const breakSeconds = timeUntilBreak % 60;
+                this.breakCountdown.textContent = `${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
+            } else {
+                this.breakCountdown.textContent = '00:00';
+            }
+        } else {
+            this.breakCountdown.textContent = '--:--';
+        }
     }
     
     toggleCollapse() {
@@ -212,4 +237,9 @@ function setBreakButtonWidth() {
 
 // Call on load and resize
 window.addEventListener('load', setBreakButtonWidth);
-window.addEventListener('resize', setBreakButtonWidth); 
+window.addEventListener('resize', setBreakButtonWidth);
+
+// Add this at the end of the file, before the closing brace
+document.getElementById('flip-card').addEventListener('click', function() {
+    document.querySelector('.card').classList.toggle('flipped');
+}); 

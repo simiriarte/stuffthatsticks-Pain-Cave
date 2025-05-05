@@ -151,6 +151,24 @@ h1 {
     z-index: 1;
 }
 
+.break-countdown {
+    font-size: 0.85rem;
+    color: #8b7355;
+    margin-bottom: 1rem;
+    font-family: 'Figtree', sans-serif;
+    font-style: italic;
+    text-transform: lowercase;
+}
+
+.countdown-time {
+    font-family: 'Figtree', sans-serif;
+    font-style: italic;
+}
+
+.container.in-cave .break-countdown {
+    color: #666666;
+}
+
 .controls {
     display: flex;
     flex-direction: column;
