@@ -15,6 +15,7 @@ class PomodoroTimer {
         // DOM Elements
         this.timeDisplay = document.querySelector('.time-display');
         this.breakCountdown = document.getElementById('break-countdown');
+        this.breakTimer = document.querySelector('.break-timer');
         this.toggleButton = document.getElementById('toggle');
         this.resetButton = document.getElementById('reset');
         this.soundToggle = document.getElementById('sound-toggle');
@@ -163,11 +164,12 @@ class PomodoroTimer {
             this.restModeButton.textContent = 'Start Chillin';
             document.querySelector('.container').classList.add('in-rest-mode');
             document.querySelector('.container').classList.remove('in-cave');
-            // Remove inline color style from timer
-            this.timeDisplay.style.color = '';
-            // Hide timers
-            this.timeDisplay.style.display = 'none';
+            // Show timer in rest mode with light teal color
+            this.timeDisplay.style.display = 'block';
+            this.timeDisplay.style.color = 'rgba(255, 255, 255, 0.7)';
+            // Hide break countdown and show break timer
             this.breakCountdown.parentElement.style.display = 'none';
+            this.breakTimer.style.display = 'block';
             // Change break button text
             this.collapseToggle.textContent = 'End break after...';
         }
@@ -192,6 +194,7 @@ class PomodoroTimer {
             // Show timers
             this.timeDisplay.style.display = 'block';
             this.breakCountdown.parentElement.style.display = 'block';
+            this.breakTimer.style.display = 'none';
             // Reset break button text
             this.collapseToggle.textContent = 'Take a break after...';
             return;
@@ -295,49 +298,60 @@ class PomodoroTimer {
         this.secondsElapsed = 0;
         this.lastBreakTime = 0;
         this.selectedBreakTime = null; // Clear break time selection
+        this.isRestMode = false; // Reset rest mode state
         this.updateDisplay();
         this.toggleButton.textContent = 'Enter Pain Cave';
         this.toggleButton.style.backgroundColor = '#ff8900'; // Orange
         this.toggleButton.style.color = 'white';
+        this.restModeButton.textContent = 'Rest Mode';
         this.breakCountdown.textContent = '--:--';
-        document.querySelector('.container').classList.remove('in-cave'); // Exit pain cave state
+        document.querySelector('.container').classList.remove('in-cave', 'in-rest-mode'); // Exit both pain cave and rest mode states
         // Remove inline color style from timer
         this.timeDisplay.style.color = '';
+        // Show timers
+        this.timeDisplay.style.display = 'block';
+        this.breakCountdown.parentElement.style.display = 'block';
         // Reset break time selection
         this.breakRadios.forEach(checkbox => {
             checkbox.checked = false;
+            checkbox.closest('.break-toggle').querySelector('.custom-radio').classList.remove('checked');
         });
-        this.customTimeInput.value = '';
+        this.customTimeInput.value = '10';
         this.customTimeInput.disabled = true;
+        // Reset cave image
+        this.caveImage.src = 'images/PAIN CAVE.png';
+        this.caveImage.alt = 'Pain Cave';
+        // Reset break button text
+        this.collapseToggle.textContent = 'Take a break after...';
     }
     
     updateDisplay() {
-        const hours = Math.floor(this.secondsElapsed / 3600);
-        const minutes = Math.floor((this.secondsElapsed % 3600) / 60);
+        const minutes = Math.floor(this.secondsElapsed / 60);
         const seconds = this.secondsElapsed % 60;
+        this.timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         
-        let timeString;
-        if (hours > 0) {
-            timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        } else {
-            timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-        
-        this.timeDisplay.textContent = timeString;
-        document.title = `${timeString} - Pain Cave`;
-
         // Update break countdown
-        if (this.selectedBreakTime !== null) {
+        if (this.selectedBreakTime !== null && !this.isRestMode) {
             const timeUntilBreak = this.selectedBreakTime - (this.secondsElapsed - this.lastBreakTime);
             if (timeUntilBreak > 0) {
                 const breakMinutes = Math.floor(timeUntilBreak / 60);
                 const breakSeconds = timeUntilBreak % 60;
                 this.breakCountdown.textContent = `${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
             } else {
-                this.breakCountdown.textContent = '00:00';
+                this.breakCountdown.textContent = '--:--';
             }
-        } else {
-            this.breakCountdown.textContent = '--:--';
+        }
+        
+        // Update break timer in rest mode
+        if (this.isRestMode && this.selectedBreakTime !== null) {
+            const timeUntilEnd = this.selectedBreakTime - (this.secondsElapsed - this.savedTime);
+            if (timeUntilEnd > 0) {
+                const breakMinutes = Math.floor(timeUntilEnd / 60);
+                const breakSeconds = timeUntilEnd % 60;
+                this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
+            } else {
+                this.breakTimer.textContent = 'break ends in --:--';
+            }
         }
     }
     
