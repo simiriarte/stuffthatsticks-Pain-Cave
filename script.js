@@ -114,9 +114,18 @@ class PomodoroTimer {
             this.playTestSound();
         });
         
-        this.volumeSlider.addEventListener('change', (e) => {
+        // Handle volume changes
+        const updateVolume = (e) => {
             this.volume = e.target.value / 100;
             this.magicalSound.volume = this.volume;
+        };
+
+        // Update volume while sliding
+        this.volumeSlider.addEventListener('input', updateVolume);
+        
+        // Play test sound only when sliding ends
+        this.volumeSlider.addEventListener('change', (e) => {
+            updateVolume(e);
             if (this.soundEnabled) {
                 this.playTestSound();
             }
