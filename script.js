@@ -102,7 +102,7 @@ class PomodoroTimer {
         this.secondsElapsed = 0;
         this.caveImage.src = 'images/DETOX.png';
         this.caveImage.alt = 'Detox';
-        this.timeDisplay.style.color = '#007bff';
+        this.timeDisplay.style.color = 'white';
         this.toggleButton.textContent = 'End Rest';
         this.toggleButton.style.backgroundColor = '#007bff';
         this.toggleButton.style.color = 'white';
@@ -138,12 +138,14 @@ class PomodoroTimer {
             this.toggleButton.style.backgroundColor = '#1abc9c'; // Teal
             this.toggleButton.style.color = 'white';
             document.querySelector('.container').classList.add('in-cave');
+            this.timeDisplay.style.color = 'white';
         } else {
             this.pause();
             this.toggleButton.textContent = 'Enter Pain Cave';
             this.toggleButton.style.backgroundColor = '#ff8900'; // Orange
             this.toggleButton.style.color = 'white';
             document.querySelector('.container').classList.remove('in-cave');
+            this.timeDisplay.style.color = '#333';
         }
     }
     
