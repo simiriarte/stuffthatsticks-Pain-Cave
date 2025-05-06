@@ -21,10 +21,9 @@
 
 body {
     background-color: #5b5167;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
+    margin: 0;
+    padding: 0;
     position: relative;
 }
 
@@ -42,6 +41,14 @@ body::before {
     z-index: 0;
 }
 
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
 .container {
     background-color: #fcf8ee;
     padding: 2rem;
@@ -49,7 +56,7 @@ body::before {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     text-align: center;
     max-width: 400px;
-    width: 90%;
+    width: 100%;
     position: relative;
     z-index: 1;
     transition: background-color 0.3s ease;
@@ -145,6 +152,12 @@ h1 {
     margin: 0 auto 1rem;
     display: block;
     filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.cave-image:hover {
+    transform: scale(1.05);
 }
 
 .time-display {
@@ -828,4 +841,6 @@ button,
 
 .container.in-rest-mode .break-settings {
     padding-bottom: 0.25rem;
-} 
+}
+
+/* Remove all flip card styles */ 

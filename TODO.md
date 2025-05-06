@@ -6,3 +6,4 @@
 - add end session button (confetti?)
 - ~~remove automatic break pop up at 5 minutes~~
 - add pain cave end session button 
+- allow unselection for radio buttons

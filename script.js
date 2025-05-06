@@ -148,13 +148,14 @@ class PomodoroTimer {
             this.pause();
             this.caveImage.src = 'images/DETOX.png';
             this.caveImage.alt = 'Detox';
-            this.timeDisplay.style.color = 'white';
             this.toggleButton.textContent = 'Enter Pain Cave';
             this.toggleButton.style.backgroundColor = '#ff8900';
             this.toggleButton.style.color = 'white';
             this.restModeButton.textContent = 'Start Chillin';
             document.querySelector('.container').classList.add('in-rest-mode');
             document.querySelector('.container').classList.remove('in-cave');
+            // Remove inline color style from timer
+            this.timeDisplay.style.color = '';
             // Hide timers
             this.timeDisplay.style.display = 'none';
             this.breakCountdown.parentElement.style.display = 'none';
@@ -177,7 +178,8 @@ class PomodoroTimer {
             this.restModeButton.textContent = 'Rest Mode';
             document.querySelector('.container').classList.remove('in-rest-mode');
             document.querySelector('.container').classList.add('in-cave');
-            this.timeDisplay.style.color = 'white';
+            // Remove inline color style from timer
+            this.timeDisplay.style.color = '';
             // Show timers
             this.timeDisplay.style.display = 'block';
             this.breakCountdown.parentElement.style.display = 'block';
@@ -195,7 +197,8 @@ class PomodoroTimer {
             this.toggleButton.style.backgroundColor = '#1abc9c';
             this.toggleButton.style.color = 'white';
             document.querySelector('.container').classList.add('in-cave');
-            this.timeDisplay.style.color = 'white';
+            // Remove inline color style from timer
+            this.timeDisplay.style.color = '';
             // Show timers
             this.timeDisplay.style.display = 'block';
             this.breakCountdown.parentElement.style.display = 'block';
@@ -206,7 +209,8 @@ class PomodoroTimer {
             this.toggleButton.style.backgroundColor = '#ff8900';
             this.toggleButton.style.color = 'white';
             document.querySelector('.container').classList.remove('in-cave');
-            this.timeDisplay.style.color = '#333';
+            // Remove inline color style from timer
+            this.timeDisplay.style.color = '';
             // Show timers
             this.timeDisplay.style.display = 'block';
             this.breakCountdown.parentElement.style.display = 'block';
@@ -288,7 +292,8 @@ class PomodoroTimer {
         this.toggleButton.style.color = 'white';
         this.breakCountdown.textContent = '--:--';
         document.querySelector('.container').classList.remove('in-cave'); // Exit pain cave state
-        
+        // Remove inline color style from timer
+        this.timeDisplay.style.color = '';
         // Reset break time selection
         this.breakRadios.forEach(checkbox => {
             checkbox.checked = false;
@@ -348,9 +353,4 @@ function setBreakButtonWidth() {
 
 // Call on load and resize
 window.addEventListener('load', setBreakButtonWidth);
-window.addEventListener('resize', setBreakButtonWidth);
-
-// Add this at the end of the file, before the closing brace
-document.getElementById('flip-card').addEventListener('click', function() {
-    document.querySelector('.card').classList.toggle('flipped');
-}); 
+window.addEventListener('resize', setBreakButtonWidth); 
