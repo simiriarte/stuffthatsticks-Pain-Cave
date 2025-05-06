@@ -118,12 +118,20 @@ class PomodoroTimer {
         this.secondsElapsed = 0;
         this.caveImage.src = 'images/PAIN CAVE.png';
         this.caveImage.alt = 'Pain Cave';
-        this.timeDisplay.style.color = '#333';
         this.toggleButton.textContent = 'Enter Pain Cave';
         this.toggleButton.style.backgroundColor = '#ff8900';
         this.toggleButton.style.color = 'white';
         this.restModeButton.textContent = 'Rest Mode';
         document.querySelector('.container').classList.remove('in-rest-mode');
+        
+        // Check if we should be in dark mode
+        if (this.isRunning) {
+            document.querySelector('.container').classList.add('in-cave');
+            this.timeDisplay.style.color = 'white';
+        } else {
+            document.querySelector('.container').classList.remove('in-cave');
+            this.timeDisplay.style.color = '#333';
+        }
     }
     
     toggle() {
