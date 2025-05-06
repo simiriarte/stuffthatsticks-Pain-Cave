@@ -496,6 +496,10 @@ button,
     border-radius: 0.5rem;
 }
 
+.container.in-rest-mode .time-selections {
+    margin-bottom: 0.25rem;
+}
+
 .break-grid {
     display: flex;
     gap: 2rem;
@@ -780,4 +784,48 @@ button,
 
 .container.in-rest-mode #volume-slider::-moz-range-thumb {
     background: #139178;
+}
+
+.countdown-timer {
+    display: none; /* Hide by default */
+    margin: 1rem 0;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.countdown-label {
+    font-family: 'Figtree', sans-serif;
+    font-size: 0.9rem;
+    color: #8b7355;
+}
+
+.countdown-value {
+    font-family: 'Figtree', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Remove the in-cave styles since we don't want to show it there */
+.container.in-cave .countdown-timer {
+    display: none;
+}
+
+.container.in-rest-mode .countdown-timer {
+    display: flex; /* Show only in rest mode */
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: 0.5rem 0; /* Reduced from 1rem to 0.5rem */
+}
+
+.container.in-rest-mode .countdown-label,
+.container.in-rest-mode .countdown-value {
+    color: white;
+}
+
+.container.in-rest-mode .break-settings {
+    padding-bottom: 0.25rem;
 } 
