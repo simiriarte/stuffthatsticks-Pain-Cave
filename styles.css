@@ -59,6 +59,10 @@ body::before {
     background-color: #282828;
 }
 
+.container.in-rest-mode {
+    background-color: #1abc9c;
+}
+
 .container.in-cave .time-display,
 .container.in-cave h1,
 .container.in-cave .magic-text,
@@ -175,6 +179,10 @@ h1 {
     color: #666666;
 }
 
+.container.in-rest-mode .break-countdown {
+    color: white;
+}
+
 .controls {
     display: flex;
     flex-direction: column;
@@ -216,7 +224,7 @@ h1 {
 .time-input input {
     width: 80px;
     padding: 0.5rem;
-    border: 2px solid #007bff;
+    border: 2px solid #0097f2;
     border-radius: 0.5rem;
     font-size: 1rem;
     text-align: center;
@@ -347,12 +355,13 @@ button:hover {
 }
 
 .container.in-rest-mode .cave-image {
-    max-width: 60%;
+    max-width: 82%;
     height: auto;
     border-radius: 0.5rem;
     margin: 0 auto 1rem;
     display: block;
     filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+    transition: max-width 0.3s ease;
 }
 
 .sound-controls {
@@ -374,28 +383,31 @@ button:hover {
 .sound-toggle input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #ff8900;
-    border-radius: 4px;
-    outline: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #0097f2;
+    border-radius: 3px;
+    background-color: transparent;
     cursor: pointer;
     position: relative;
-    transition: background-color 0.3s;
+    transition: all 0.3s ease;
 }
 
 .sound-toggle input[type="checkbox"]:checked {
-    background-color: #ff8900;
+    background-color: #0097f2;
+    border-color: #0097f2;
 }
 
 .sound-toggle input[type="checkbox"]:checked::after {
-    content: '✓';
+    content: '';
     position: absolute;
-    color: white;
-    font-size: 14px;
+    width: 8px;
+    height: 4px;
+    border-left: 2px solid white;
+    border-bottom: 2px solid white;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -60%) rotate(-45deg);
 }
 
 .volume-control {
@@ -408,31 +420,33 @@ button:hover {
 
 #volume-slider {
     -webkit-appearance: none;
-    appearance: none;
-    flex: 1;
+    width: 100%;
     height: 4px;
-    background: #ddd;
     border-radius: 2px;
+    background: #e0e0e0;
     outline: none;
-    cursor: pointer;
+    margin: 10px 0;
 }
 
 #volume-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    background: #ff8900;
+    appearance: none;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
+    background: #0097f2;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 #volume-slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    background: #ff8900;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
+    background: #0097f2;
     cursor: pointer;
     border: none;
+    transition: all 0.3s ease;
 }
 
 button, 
@@ -512,7 +526,7 @@ button,
 .custom-radio {
     width: 16px;
     height: 16px;
-    border: 1px solid #007bff;
+    border: 1px solid #0097f2;
     border-radius: 50%;
     display: inline-block;
     position: relative;
@@ -522,13 +536,13 @@ button,
 }
 
 .custom-radio:hover {
-    border-color: #007bff;
-    background-color: rgba(0, 123, 255, 0.2);
+    border-color: #0097f2;
+    background-color: rgba(0, 151, 242, 0.2);
 }
 
 .custom-radio.checked {
-    background-color: #ff8900;
-    border-color: #ff8900;
+    background-color: #0097f2;
+    border-color: #0097f2;
 }
 
 .custom-radio.checked::after {
@@ -559,7 +573,6 @@ button,
 
 .break-toggle label {
     color: #333;
-    cursor: pointer;
     font-family: 'Figtree', sans-serif;
 }
 
@@ -601,6 +614,12 @@ button,
 
 .break-toggle.custom span {
     font-family: 'Figtree', sans-serif;
+    color: #333;
+}
+
+.container.in-cave .break-toggle.custom span,
+.container.in-rest-mode .break-toggle.custom span {
+    color: white;
 }
 
 .time-highlight {
@@ -663,7 +682,7 @@ button,
 }
 
 .rest-mode-btn {
-    background-color: #007bff;
+    background-color: #0097f2;
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -676,4 +695,89 @@ button,
 .rest-mode-btn:hover {
     background-color: #0069d9;
     color: white;
+}
+
+.container.in-rest-mode .magic-text,
+.container.in-rest-mode .rest-text {
+    color: white;
+}
+
+.container.in-rest-mode .sound-toggle span,
+.container.in-rest-mode .volume-control span {
+    color: white;
+}
+
+.container.in-rest-mode .sound-toggle input[type="checkbox"] {
+    border-color: #139178;
+}
+
+.container.in-rest-mode .sound-toggle input[type="checkbox"]:checked {
+    background-color: #139178;
+    border-color: #139178;
+}
+
+.container.in-rest-mode #volume-slider::-webkit-slider-thumb {
+    background: #139178;
+}
+
+.container.in-rest-mode #volume-slider::-moz-range-thumb {
+    background: #139178;
+}
+
+.container.in-rest-mode .break-toggle {
+    color: white;
+    font-family: 'Figtree', sans-serif;
+}
+
+.container.in-rest-mode .break-toggle label {
+    color: white;
+    font-family: 'Figtree', sans-serif;
+}
+
+.container.in-rest-mode .break-toggle.custom span {
+    color: white;
+    font-family: 'Figtree', sans-serif;
+}
+
+.container.in-cave .break-toggle {
+    font-family: 'Figtree', sans-serif;
+}
+
+.container.in-cave .break-toggle label {
+    font-family: 'Figtree', sans-serif;
+}
+
+.container.in-cave .break-toggle.custom span {
+    font-family: 'Figtree', sans-serif;
+}
+
+.container.in-rest-mode .custom-radio {
+    border-color: #139178;
+}
+
+.container.in-rest-mode .custom-radio:hover {
+    border-color: #139178;
+    background-color: rgba(19, 145, 120, 0.2);
+}
+
+.container.in-rest-mode .custom-radio.checked {
+    background-color: #139178;
+    border-color: #139178;
+}
+
+.container.in-rest-mode .sound-toggle input[type="checkbox"] {
+    border-color: #139178;
+}
+
+.container.in-rest-mode .sound-toggle input[type="checkbox"]:checked {
+    background-color: #139178;
+    border-color: #139178;
+}
+
+.container.in-rest-mode #volume-slider::-webkit-slider-thumb {
+    background: #139178;
+}
+
+.container.in-rest-mode #volume-slider::-moz-range-thumb {
+    background: #139178;
 } 
