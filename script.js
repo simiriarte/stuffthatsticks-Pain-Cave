@@ -108,6 +108,7 @@ class PomodoroTimer {
         this.toggleButton.style.color = 'white';
         this.restModeButton.textContent = 'In Rest Mode';
         document.querySelector('.container').classList.remove('in-cave');
+        document.querySelector('.container').classList.add('in-rest-mode');
         this.start();
     }
     
@@ -122,6 +123,7 @@ class PomodoroTimer {
         this.toggleButton.style.backgroundColor = '#ff8900';
         this.toggleButton.style.color = 'white';
         this.restModeButton.textContent = 'Rest Mode';
+        document.querySelector('.container').classList.remove('in-rest-mode');
     }
     
     toggle() {
