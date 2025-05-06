@@ -506,34 +506,32 @@ button,
 }
 
 .break-toggle input[type="radio"] {
-    appearance: none;
-    -webkit-appearance: none;
+    display: none; /* Hide the original radio button */
+}
+
+.custom-radio {
     width: 16px;
     height: 16px;
     border: 1px solid #007bff;
     border-radius: 50%;
-    outline: none;
-    cursor: pointer;
+    display: inline-block;
     position: relative;
+    cursor: pointer;
+    margin-right: 0.75rem;
     transition: all 0.3s ease;
 }
 
-.break-toggle input[type="radio"]:hover {
+.custom-radio:hover {
     border-color: #007bff;
     background-color: rgba(0, 123, 255, 0.2);
 }
 
-.break-toggle input[type="radio"]:checked {
+.custom-radio.checked {
     background-color: #ff8900;
     border-color: #ff8900;
 }
 
-.container.in-cave .break-toggle input[type="radio"]:checked {
-    background-color: #1abc9c;
-    border-color: #1abc9c;
-}
-
-.break-toggle input[type="radio"]:checked::after {
+.custom-radio.checked::after {
     content: '';
     position: absolute;
     width: 8px;
@@ -543,6 +541,20 @@ button,
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.container.in-cave .custom-radio {
+    border-color: #1abc9c;
+}
+
+.container.in-cave .custom-radio:hover {
+    border-color: #1abc9c;
+    background-color: rgba(26, 188, 156, 0.2);
+}
+
+.container.in-cave .custom-radio.checked {
+    background-color: #1abc9c;
+    border-color: #1abc9c;
 }
 
 .break-toggle label {
@@ -558,6 +570,11 @@ button,
     gap: 0.75rem;
     justify-content: center;
     margin-top: 0;
+}
+
+.break-toggle.custom .custom-radio {
+    margin-right: 0.75rem;
+    order: -1; /* Move the radio button to the start of the flex container */
 }
 
 .break-toggle.custom input[type="number"] {

@@ -45,7 +45,48 @@ class PomodoroTimer {
         
         // Break time listeners
         this.breakRadios.forEach(radio => {
-            radio.addEventListener('change', () => this.updateBreakTime(radio));
+            const wrapper = radio.closest('.break-toggle');
+            const label = wrapper.querySelector('label');
+            
+            // Create a custom radio button
+            const customRadio = document.createElement('div');
+            customRadio.className = 'custom-radio';
+            radio.style.display = 'none'; // Hide the original radio
+            wrapper.insertBefore(customRadio, label);
+            
+            // Update the custom radio appearance based on the actual radio state
+            const updateCustomRadio = () => {
+                customRadio.classList.toggle('checked', radio.checked);
+            };
+            
+            // Handle clicks on the custom radio
+            customRadio.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (radio.checked) {
+                    // If already checked, uncheck it
+                    radio.checked = false;
+                    this.selectedBreakTime = null;
+                    this.customTimeInput.disabled = true;
+                    this.breakCountdown.textContent = '--:--';
+                } else {
+                    // If not checked, check it and uncheck others
+                    this.breakRadios.forEach(otherRadio => {
+                        otherRadio.checked = false;
+                        otherRadio.closest('.break-toggle').querySelector('.custom-radio').classList.remove('checked');
+                    });
+                    radio.checked = true;
+                    this.updateBreakTime(radio);
+                }
+                updateCustomRadio();
+            });
+            
+            // Update the custom radio when the actual radio changes
+            radio.addEventListener('change', updateCustomRadio);
+            
+            // Initial state
+            updateCustomRadio();
         });
         
         this.customTimeInput.addEventListener('change', () => {
@@ -83,13 +124,13 @@ class PomodoroTimer {
         this.updateDisplay();
     }
     
-    updateBreakTime(radio) {
-        if (radio.id === 'break-custom') {
+    updateBreakTime(checkbox) {
+        if (checkbox.id === 'break-custom') {
             this.customTimeInput.disabled = false;
             this.selectedBreakTime = parseInt(this.customTimeInput.value) * 60;
         } else {
             this.customTimeInput.disabled = true;
-            this.selectedBreakTime = parseInt(radio.value) * 60;
+            this.selectedBreakTime = parseInt(checkbox.value) * 60;
         }
         // Set lastBreakTime to current time when break time is changed
         this.lastBreakTime = this.secondsElapsed;
@@ -234,8 +275,8 @@ class PomodoroTimer {
         document.querySelector('.container').classList.remove('in-cave'); // Exit pain cave state
         
         // Reset break time selection
-        this.breakRadios.forEach(radio => {
-            radio.checked = false;
+        this.breakRadios.forEach(checkbox => {
+            checkbox.checked = false;
         });
         this.customTimeInput.value = '';
         this.customTimeInput.disabled = true;
