@@ -94,6 +94,13 @@ class PomodoroTimer {
         this.customTimeInput.addEventListener('change', () => {
             if (document.getElementById('break-custom').checked) {
                 this.selectedBreakTime = parseInt(this.customTimeInput.value) * 60;
+                // If in rest mode, update the break timer display and start the timer
+                if (this.isRestMode) {
+                    const breakMinutes = Math.floor(this.selectedBreakTime / 60);
+                    const breakSeconds = this.selectedBreakTime % 60;
+                    this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
+                    this.start(); // Start the timer when a time is selected in rest mode
+                }
             }
         });
         
@@ -143,8 +150,17 @@ class PomodoroTimer {
             this.customTimeInput.disabled = true;
             this.selectedBreakTime = parseInt(checkbox.value) * 60;
         }
+        
         // Set lastBreakTime to current time when break time is changed
         this.lastBreakTime = this.secondsElapsed;
+        
+        // If in rest mode, update the break timer display and start the break timer
+        if (this.isRestMode) {
+            const breakMinutes = Math.floor(this.selectedBreakTime / 60);
+            const breakSeconds = this.selectedBreakTime % 60;
+            this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
+            this.startBreakTimer(); // Start the break timer when a time is selected in rest mode
+        }
     }
     
     toggleRestMode() {
@@ -172,6 +188,11 @@ class PomodoroTimer {
             this.breakTimer.style.display = 'block';
             // Change break button text
             this.collapseToggle.textContent = 'End break after...';
+            
+            // If a break time is selected, start the break timer
+            if (this.selectedBreakTime !== null) {
+                this.startBreakTimer();
+            }
         }
     }
     
@@ -214,6 +235,7 @@ class PomodoroTimer {
             // Show timers
             this.timeDisplay.style.display = 'block';
             this.breakCountdown.parentElement.style.display = 'block';
+            this.breakTimer.style.display = 'none';
         } else {
             // Exit pain cave
             this.pause();
@@ -226,6 +248,7 @@ class PomodoroTimer {
             // Show timers
             this.timeDisplay.style.display = 'block';
             this.breakCountdown.parentElement.style.display = 'block';
+            this.breakTimer.style.display = 'none';
         }
     }
     
@@ -235,6 +258,68 @@ class PomodoroTimer {
             this.magicalSound.play().catch(error => {
                 console.log('Error playing test sound:', error);
             });
+        }
+    }
+    
+    startBreakTimer() {
+        if (!this.isRunning) {
+            this.isRunning = true;
+            this.timerId = setInterval(() => {
+                if (this.isRestMode) {
+                    // Only update the break timer display in rest mode
+                    const timeUntilEnd = this.selectedBreakTime - (this.secondsElapsed - this.savedTime);
+                    if (timeUntilEnd > 0) {
+                        const breakMinutes = Math.floor(timeUntilEnd / 60);
+                        const breakSeconds = timeUntilEnd % 60;
+                        this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
+                    } else {
+                        this.breakTimer.textContent = 'break ends in --:--';
+                        this.pause();
+                    }
+                } else {
+                    // Normal timer behavior for pain cave mode
+                    this.secondsElapsed++;
+                    this.updateDisplay();
+                    
+                    // Check for break time only if a break time is selected
+                    if (this.selectedBreakTime !== null && 
+                        this.secondsElapsed >= this.selectedBreakTime && 
+                        this.secondsElapsed - this.lastBreakTime >= this.selectedBreakTime) {
+                        
+                        console.log('Break time reached:', {
+                            secondsElapsed: this.secondsElapsed,
+                            selectedBreakTime: this.selectedBreakTime,
+                            lastBreakTime: this.lastBreakTime
+                        });
+                        
+                        const totalMinutes = Math.floor(this.secondsElapsed / 60);
+                        const hours = Math.floor(totalMinutes / 60);
+                        const minutes = totalMinutes % 60;
+                        
+                        let timeString = '';
+                        if (hours > 0) {
+                            timeString = `${hours} hour${hours > 1 ? 's' : ''}`;
+                            if (minutes > 0) {
+                                timeString += ` and ${minutes} minute${minutes > 1 ? 's' : ''}`;
+                            }
+                        } else {
+                            timeString = `${minutes} minute${minutes > 1 ? 's' : ''}`;
+                        }
+                        
+                        this.breakMessage.innerHTML = `you've been in the pain cave for:<br><span class="time-highlight">${timeString}</span>`;
+                        this.breakModal.style.display = 'block';
+                        this.lastBreakTime = this.secondsElapsed;
+                        this.pause();  // Pause the timer when the modal appears
+                        
+                        if (this.soundEnabled) {
+                            this.magicalSound.currentTime = 0;
+                            this.magicalSound.play().catch(error => {
+                                console.log('Error playing sound:', error);
+                            });
+                        }
+                    }
+                }
+            }, 1000);
         }
     }
     
@@ -328,9 +413,13 @@ class PomodoroTimer {
     updateDisplay() {
         const minutes = Math.floor(this.secondsElapsed / 60);
         const seconds = this.secondsElapsed % 60;
-        this.timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        this.timeDisplay.textContent = timeString;
         
-        // Update break countdown
+        // Update browser tab title with timer
+        document.title = `${timeString} - Pain Cave`;
+        
+        // Update break countdown only in pain cave mode
         if (this.selectedBreakTime !== null && !this.isRestMode) {
             const timeUntilBreak = this.selectedBreakTime - (this.secondsElapsed - this.lastBreakTime);
             if (timeUntilBreak > 0) {
@@ -342,7 +431,7 @@ class PomodoroTimer {
             }
         }
         
-        // Update break timer in rest mode
+        // Update break timer only in rest mode
         if (this.isRestMode && this.selectedBreakTime !== null) {
             const timeUntilEnd = this.selectedBreakTime - (this.secondsElapsed - this.savedTime);
             if (timeUntilEnd > 0) {
