@@ -157,6 +157,11 @@ h1 {
     cursor: pointer;
 }
 
+/* Add information cursor in light mode */
+.container:not(.in-cave):not(.in-rest-mode) .cave-image {
+    cursor: help;
+}
+
 /* Change cursor to default in dark mode and rest mode */
 .container.in-cave .cave-image,
 .container.in-rest-mode .cave-image {
