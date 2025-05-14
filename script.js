@@ -51,6 +51,10 @@ class PomodoroTimer {
         this.enterPainCaveButton = document.getElementById('enter-pain-cave');
         this.keepChillinButton = document.getElementById('keep-chillin');
         
+        // Info modal elements
+        this.infoModal = document.getElementById('info-modal');
+        this.closeInfoButton = document.getElementById('close-info');
+        
         // Sound elements
         this.magicalSound = new Audio('sounds/magical twinkle.mp3');
         this.magicalSound.volume = this.volume;
@@ -78,6 +82,34 @@ class PomodoroTimer {
                     this.restModeButton.classList.remove('ready-to-start');
                     this.restModeButton.classList.remove('disabled');
                 }
+            }
+        });
+        
+        // Cave image click for info modal
+        this.caveImage.addEventListener('click', (e) => {
+            // Only show info modal when clicked and not currently in a timer
+            if (!this.isRunning) {
+                this.infoModal.style.display = 'block';
+                e.stopPropagation();
+            }
+        });
+        
+        // Close info modal
+        this.closeInfoButton.addEventListener('click', () => {
+            this.infoModal.style.display = 'none';
+        });
+        
+        // Close modals when clicking outside the content
+        window.addEventListener('click', (e) => {
+            if (e.target === this.breakModal) {
+                this.breakModal.style.display = 'none';
+                this.start(); // Resume the timer
+            }
+            if (e.target === this.restEndModal) {
+                this.restEndModal.style.display = 'none';
+            }
+            if (e.target === this.infoModal) {
+                this.infoModal.style.display = 'none';
             }
         });
         

@@ -153,11 +153,18 @@ h1 {
     margin: 0 auto 1rem;
     display: block;
     filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
-    cursor: pointer;
     transition: transform 0.3s ease;
+    cursor: pointer;
 }
 
-.cave-image:hover {
+/* Change cursor to default in dark mode and rest mode */
+.container.in-cave .cave-image,
+.container.in-rest-mode .cave-image {
+    cursor: default;
+}
+
+/* Only apply hover effect in light mode (not in cave or rest mode) */
+.container:not(.in-cave):not(.in-rest-mode) .cave-image:hover {
     transform: scale(1.05);
 }
 
@@ -967,4 +974,129 @@ button,
     display: block;
     background-color: #149178;
     color: white;
+}
+
+/* Feedback Button Styles */
+.feedback-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #0097f2;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    transition: all 0.3s ease;
+    font-family: 'Figtree', sans-serif;
+    text-transform: lowercase;
+    text-decoration: none;
+}
+
+.feedback-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.container.in-cave .feedback-button {
+    background-color: #1abc9c;
+}
+
+.container.in-rest-mode .feedback-button {
+    background-color: #139178;
+}
+
+/* Info Modal Styles */
+.info-modal-content {
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 3rem;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.info-modal-content::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
+.info-modal-content h2 {
+    font-family: 'Bobby Jones Soft', sans-serif;
+    color: #0097f2; /* Blue color for the title */
+}
+
+.info-content {
+    text-align: left;
+    font-family: 'Figtree', sans-serif;
+    margin-bottom: 1.5rem;
+}
+
+.info-content p,
+.info-content li {
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    color: #333;
+    font-family: 'Figtree', sans-serif;
+    text-transform: none; /* Reset any previous text transform */
+}
+
+.info-content p::first-letter,
+.info-content li::first-letter {
+    text-transform: uppercase;
+}
+
+.info-content ul {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.info-content li {
+    margin-bottom: 0.5rem;
+    color: #333;
+    line-height: 1.4;
+    font-family: 'Figtree', sans-serif;
+    text-transform: none; /* Reset any previous text transform */
+}
+
+.container.in-cave .info-modal-content {
+    background-color: #282828;
+}
+
+.container.in-cave .info-modal-content h2,
+.container.in-cave .info-content p,
+.container.in-cave .info-content li {
+    color: white;
+}
+
+.container.in-rest-mode .info-modal-content {
+    background-color: #1abc9c;
+}
+
+.container.in-rest-mode .info-modal-content h2,
+.container.in-rest-mode .info-content p,
+.container.in-rest-mode .info-content li {
+    color: white;
+}
+
+#close-info {
+    background-color: #ff8900;
+    color: white;
+    font-family: 'Bobby Jones Soft', sans-serif;
+}
+
+.container.in-cave #close-info {
+    background-color: #1abc9c;
+}
+
+.container.in-rest-mode #close-info {
+    background-color: #149178;
+}
+
+.figtree-font {
+    font-family: 'Figtree', sans-serif;
+    font-weight: bold;
 } 
