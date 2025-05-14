@@ -569,7 +569,7 @@ class PomodoroTimer {
         // Reset intention
         this.intention = '';
         this.intentionInput.value = '';
-        this.intentionDisplay.textContent = '';
+        this.updateIntentionDisplay(); // Use the method to properly update the display
     }
     
     updateDisplay() {
