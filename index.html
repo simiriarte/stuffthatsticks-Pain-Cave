@@ -13,6 +13,10 @@
             <button id="reset" class="reset-btn">reset</button>
             <div class="timer">
                 <img src="images/PAIN CAVE.png" alt="Pain Cave" class="cave-image">
+                <div class="intention-container">
+                    <input type="text" id="intention-input" placeholder="what are you doing in the pain cave?" maxlength="50">
+                    <p id="intention-display" class="intention-display"></p>
+                </div>
                 <p class="magic-text">magical things happen when you enter and exit the pain cave</p>
                 <p class="rest-text">move, hydrate, take deep breaths</p>
                 <div class="time-display">25:00</div>
@@ -79,6 +83,18 @@
                     <div class="modal-buttons">
                         <button id="take-break">Take a Break</button>
                         <button id="keep-going">Keep Going</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rest End Modal -->
+            <div id="rest-end-modal" class="modal">
+                <div class="modal-content">
+                    <h2>Feeling Refreshed?</h2>
+                    <p>Your break time has ended.</p>
+                    <div class="modal-buttons">
+                        <button id="enter-pain-cave">Enter Pain Cave</button>
+                        <button id="keep-chillin">Keep Chillin</button>
                     </div>
                 </div>
             </div>

@@ -8,11 +8,14 @@ class PomodoroTimer {
         this.isRestMode = false;
         this.savedTime = 0;
         this.startTime = null; // Add startTime to track when timer started
+        this.intention = ""; // Store the user's intention
         
         // Add break timer properties
         this.breakTimerId = null;
         this.breakTimeElapsed = 0;
         this.breakStartTime = null;
+        this.isBreakTimerPaused = false;
+        this.breakPausedAt = 0;
         
         // Sound settings
         this.soundEnabled = true;
@@ -30,6 +33,8 @@ class PomodoroTimer {
         this.breakSettings = document.querySelector('.break-settings');
         this.caveImage = document.querySelector('.cave-image');
         this.restModeButton = document.getElementById('rest-mode');
+        this.intentionInput = document.getElementById('intention-input');
+        this.intentionDisplay = document.getElementById('intention-display');
         
         // Break time elements
         this.breakRadios = document.querySelectorAll('input[name="break-time"]');
@@ -40,6 +45,11 @@ class PomodoroTimer {
         this.breakMessage = document.getElementById('break-message');
         this.takeBreakButton = document.getElementById('take-break');
         this.keepGoingButton = document.getElementById('keep-going');
+        
+        // Rest end modal elements
+        this.restEndModal = document.getElementById('rest-end-modal');
+        this.enterPainCaveButton = document.getElementById('enter-pain-cave');
+        this.keepChillinButton = document.getElementById('keep-chillin');
         
         // Sound elements
         this.magicalSound = new Audio('sounds/magical twinkle.mp3');
@@ -56,18 +66,25 @@ class PomodoroTimer {
                 this.restModeButton.classList.add('disabled');
                 this.restModeButton.classList.remove('ready-to-start');
             } else if (this.isRestMode && this.selectedBreakTime !== null) {
-                // Already in rest mode and a break time is selected
-                // Start the break timer
-                this.startBreakTimer();
-                // Update button text
-                this.restModeButton.textContent = 'Chillin...';
-                this.restModeButton.classList.remove('ready-to-start');
-                this.restModeButton.classList.remove('disabled');
-                // Update timer display
-                const breakMinutes = Math.floor(this.selectedBreakTime / 60);
-                const breakSeconds = this.selectedBreakTime % 60;
-                this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
+                // Check if the break timer is running
+                if (this.breakTimerId) {
+                    // Timer is running, pause it
+                    this.pauseBreakTimer();
+                    this.restModeButton.textContent = 'Chill';
+                } else {
+                    // Timer is not running or is paused, start/resume it
+                    this.startBreakTimer();
+                    this.restModeButton.textContent = 'Pause';
+                    this.restModeButton.classList.remove('ready-to-start');
+                    this.restModeButton.classList.remove('disabled');
+                }
             }
+        });
+        
+        // Intention input listener
+        this.intentionInput.addEventListener('change', () => {
+            this.intention = this.intentionInput.value.trim();
+            this.updateIntentionDisplay();
         });
         
         // Break time listeners
@@ -135,6 +152,16 @@ class PomodoroTimer {
                     // Update the rest mode button to look ready to start
                     this.restModeButton.classList.add('ready-to-start');
                     this.restModeButton.classList.remove('disabled');
+                } else {
+                    // Update the break countdown timer in light mode
+                    const timeUntilBreak = this.selectedBreakTime;
+                    if (timeUntilBreak > 0) {
+                        const breakMinutes = Math.floor(timeUntilBreak / 60);
+                        const breakSeconds = timeUntilBreak % 60;
+                        this.breakCountdown.textContent = `${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
+                    } else {
+                        this.breakCountdown.textContent = '--:--';
+                    }
                 }
             }
         });
@@ -149,6 +176,24 @@ class PomodoroTimer {
         this.keepGoingButton.addEventListener('click', () => {
             this.breakModal.style.display = 'none';
             this.start();  // Resume the timer when clicking Keep Going
+        });
+        
+        // Rest end modal button listeners
+        this.enterPainCaveButton.addEventListener('click', () => {
+            this.restEndModal.style.display = 'none';
+            this.toggle(); // Go back to pain cave
+        });
+        
+        this.keepChillinButton.addEventListener('click', () => {
+            this.restEndModal.style.display = 'none';
+            // Reset the break time selection to allow selecting a new duration
+            this.selectedBreakTime = null;
+            this.breakRadios.forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.closest('.break-toggle').querySelector('.custom-radio').classList.remove('checked');
+            });
+            this.customTimeInput.disabled = true;
+            this.breakTimer.textContent = 'select a break duration';
         });
         
         // Sound control listeners
@@ -199,6 +244,16 @@ class PomodoroTimer {
             // Update the rest mode button to look ready to start
             this.restModeButton.classList.add('ready-to-start');
             this.restModeButton.classList.remove('disabled');
+        } else {
+            // Update the break countdown timer in light mode (when not in cave/rest mode)
+            const timeUntilBreak = this.selectedBreakTime;
+            if (timeUntilBreak > 0) {
+                const breakMinutes = Math.floor(timeUntilBreak / 60);
+                const breakSeconds = timeUntilBreak % 60;
+                this.breakCountdown.textContent = `${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
+            } else {
+                this.breakCountdown.textContent = '--:--';
+            }
         }
     }
     
@@ -207,6 +262,9 @@ class PomodoroTimer {
             // Don't exit rest mode when clicking the button
             return;
         } else {
+            // Save the intention before entering Rest Mode
+            this.intention = this.intentionInput.value.trim();
+            
             // Enter rest mode
             this.isRestMode = true;
             this.savedTime = this.secondsElapsed; // Save current time
@@ -243,6 +301,9 @@ class PomodoroTimer {
             
             // Expand break settings to show the options
             this.breakSettings.classList.remove('collapsed');
+            
+            // Update intention display
+            this.updateIntentionDisplay();
         }
     }
     
@@ -257,6 +318,10 @@ class PomodoroTimer {
                 cancelAnimationFrame(this.breakTimerId);
                 this.breakTimerId = null;
             }
+            
+            // Reset break timer pause state
+            this.isBreakTimerPaused = false;
+            this.breakPausedAt = 0;
             
             this.start();
             this.caveImage.src = 'images/PAIN CAVE.png';
@@ -275,10 +340,15 @@ class PomodoroTimer {
             this.breakTimer.style.display = 'none';
             // Reset break button text
             this.collapseToggle.textContent = 'Take a break after...';
+            // Update intention display
+            this.updateIntentionDisplay();
             return;
         }
         
         if (!this.isRunning) {
+            // Save the intention before entering Pain Cave
+            this.intention = this.intentionInput.value.trim();
+            
             // Enter pain cave
             this.start();
             this.caveImage.src = 'images/PAIN CAVE.png';
@@ -293,6 +363,8 @@ class PomodoroTimer {
             this.timeDisplay.style.display = 'block';
             this.breakCountdown.parentElement.style.display = 'block';
             this.breakTimer.style.display = 'none';
+            // Update intention display
+            this.updateIntentionDisplay();
         } else {
             // Exit pain cave
             this.pause();
@@ -326,8 +398,15 @@ class PomodoroTimer {
             cancelAnimationFrame(this.breakTimerId);
         }
         
-        this.breakStartTime = new Date(); // Record break start time
-        this.breakTimeElapsed = 0;
+        if (!this.isBreakTimerPaused) {
+            // Starting fresh
+            this.breakStartTime = new Date(); // Record break start time
+            this.breakTimeElapsed = 0;
+        } else {
+            // Resuming from pause
+            this.breakStartTime = new Date(new Date().getTime() - (this.breakPausedAt * 1000));
+            this.isBreakTimerPaused = false;
+        }
         
         const updateBreakTimer = () => {
             // Calculate elapsed time based on actual time passed
@@ -353,9 +432,15 @@ class PomodoroTimer {
                         });
                     }
                     
+                    // Show the rest-end modal
+                    this.restEndModal.style.display = 'block';
+                    
                     // Stop the break timer
                     cancelAnimationFrame(this.breakTimerId);
                     this.breakTimerId = null;
+                    this.isBreakTimerPaused = false;
+                    this.restModeButton.textContent = 'Start Chillin';
+                    this.restModeButton.classList.add('disabled');
                     return;
                 }
             }
@@ -444,6 +529,10 @@ class PomodoroTimer {
             this.breakTimerId = null;
         }
         
+        // Reset break timer pause state
+        this.isBreakTimerPaused = false;
+        this.breakPausedAt = 0;
+        
         this.secondsElapsed = 0;
         this.breakTimeElapsed = 0;
         this.lastBreakTime = 0;
@@ -477,6 +566,10 @@ class PomodoroTimer {
         this.caveImage.alt = 'Pain Cave';
         // Reset break button text
         this.collapseToggle.textContent = 'Take a break after...';
+        // Reset intention
+        this.intention = '';
+        this.intentionInput.value = '';
+        this.intentionDisplay.textContent = '';
     }
     
     updateDisplay() {
@@ -518,6 +611,27 @@ class PomodoroTimer {
     
     toggleCollapse() {
         this.breakSettings.classList.toggle('collapsed');
+    }
+    
+    // Add method to pause the break timer
+    pauseBreakTimer() {
+        if (this.breakTimerId) {
+            cancelAnimationFrame(this.breakTimerId);
+            this.breakTimerId = null;
+            this.isBreakTimerPaused = true;
+            this.breakPausedAt = this.breakTimeElapsed;
+        }
+    }
+    
+    // New method to update the intention display
+    updateIntentionDisplay() {
+        if (this.intention) {
+            this.intentionDisplay.textContent = `in the pain cave: ${this.intention}`;
+            this.intentionDisplay.style.display = 'block';
+        } else {
+            this.intentionDisplay.textContent = '';
+            this.intentionDisplay.style.display = 'none';
+        }
     }
 }
 

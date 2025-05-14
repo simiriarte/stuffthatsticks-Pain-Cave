@@ -307,7 +307,7 @@ button {
 }
 
 .modal-content p {
-    color: #333;
+    color: #444;
     margin-bottom: 1.5rem;
     font-size: 1rem;
     font-family: 'Figtree', sans-serif;
@@ -321,12 +321,12 @@ button {
     justify-content: center;
 }
 
-#take-break, #keep-going {
+#take-break, #keep-going, #enter-pain-cave, #keep-chillin {
     background-color: #dedede;
     color: #3c3c3c;
 }
 
-#take-break:hover, #keep-going:hover {
+#take-break:hover, #keep-going:hover, #enter-pain-cave:hover, #keep-chillin:hover {
     background-color: #1abc9c;
     color: white;
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
@@ -339,7 +339,7 @@ button:hover {
 }
 
 .magic-text {
-    font-size: 1rem;
+    font-size: 0.85rem;
     color: #333;
     margin-bottom: 1rem;
     font-family: 'Figtree', sans-serif;
@@ -701,7 +701,7 @@ button,
 }
 
 .rest-mode-btn {
-    background-color: #0097f2; /* Blue - active state */
+    background-color: #0097f2; /* Blue - default state when not in rest mode */
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -711,13 +711,19 @@ button,
     transition: all 0.3s ease;
 }
 
-.rest-mode-btn.disabled {
-    background-color: #149178; /* Teal - disabled state */
+/* When in rest mode but no duration selected (disabled) */
+.container.in-rest-mode .rest-mode-btn.disabled {
+    background-color: #149178; /* Teal - when no duration is selected */
     color: rgba(255, 255, 255, 0.7);
     cursor: default;
     transform: none;
     box-shadow: none;
     opacity: 0.7;
+}
+
+/* When in rest mode with duration selected or active */
+.container.in-rest-mode .rest-mode-btn:not(.disabled) {
+    background-color: #0097f2; /* Blue - when in rest mode with duration selected or active */
 }
 
 .rest-mode-btn.disabled:hover {
@@ -901,4 +907,64 @@ button,
 
 .container.in-rest-mode .break-timer {
     display: block;
+}
+
+.intention-container {
+    width: 100%;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+#intention-input {
+    width: 100%;
+    padding: 0.75rem;
+    font-family: 'Figtree', sans-serif;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 2px solid #0097f2;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    color: #333;
+    text-align: center;
+    transition: all 0.3s ease;
+    text-transform: lowercase;
+}
+
+#intention-input:focus {
+    outline: none;
+    border-color: #ffd700;
+    background-color: white;
+}
+
+.container.in-cave #intention-input {
+    display: none;
+}
+
+.container.in-rest-mode #intention-input {
+    display: none;
+}
+
+.intention-display {
+    display: none;
+    font-family: 'Figtree', sans-serif;
+    font-size: 1rem;
+    text-transform: lowercase;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: #1abc9c;
+    color: white;
+    margin: 0;
+}
+
+.container.in-cave .intention-display {
+    display: block;
+    background-color: #1abc9c;
+    color: white;
+}
+
+.container.in-rest-mode .intention-display {
+    display: block;
+    background-color: #149178;
+    color: white;
 } 
