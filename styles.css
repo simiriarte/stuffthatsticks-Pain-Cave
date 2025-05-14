@@ -701,7 +701,7 @@ button,
 }
 
 .rest-mode-btn {
-    background-color: #0097f2;
+    background-color: #0097f2; /* Blue - active state */
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -709,6 +709,40 @@ button,
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+.rest-mode-btn.disabled {
+    background-color: #149178; /* Teal - disabled state */
+    color: rgba(255, 255, 255, 0.7);
+    cursor: default;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+.rest-mode-btn.disabled:hover {
+    filter: none;
+    transform: none;
+}
+
+.rest-mode-btn.ready-to-start {
+    background-color: #0097f2; /* Blue - ready state */
+    box-shadow: 0 0 8px rgba(0, 151, 242, 0.6);
+    transform: scale(1.05);
+    animation: pulse 1.5s infinite;
+    opacity: 1;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 8px rgba(0, 151, 242, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 12px rgba(0, 151, 242, 0.9);
+    }
+    100% {
+        box-shadow: 0 0 8px rgba(0, 151, 242, 0.6);
+    }
 }
 
 .rest-mode-btn:hover {

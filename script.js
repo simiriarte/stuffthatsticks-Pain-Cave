@@ -9,6 +9,11 @@ class PomodoroTimer {
         this.savedTime = 0;
         this.startTime = null; // Add startTime to track when timer started
         
+        // Add break timer properties
+        this.breakTimerId = null;
+        this.breakTimeElapsed = 0;
+        this.breakStartTime = null;
+        
         // Sound settings
         this.soundEnabled = true;
         this.volume = 0.5;
@@ -44,7 +49,26 @@ class PomodoroTimer {
         this.toggleButton.addEventListener('click', () => this.toggle());
         this.resetButton.addEventListener('click', () => this.reset());
         this.collapseToggle.addEventListener('click', () => this.toggleCollapse());
-        this.restModeButton.addEventListener('click', () => this.toggleRestMode());
+        this.restModeButton.addEventListener('click', () => {
+            if (!this.isRestMode) {
+                this.toggleRestMode();
+                // No need to update text anymore, just show the button as disabled
+                this.restModeButton.classList.add('disabled');
+                this.restModeButton.classList.remove('ready-to-start');
+            } else if (this.isRestMode && this.selectedBreakTime !== null) {
+                // Already in rest mode and a break time is selected
+                // Start the break timer
+                this.startBreakTimer();
+                // Update button text
+                this.restModeButton.textContent = 'Chillin...';
+                this.restModeButton.classList.remove('ready-to-start');
+                this.restModeButton.classList.remove('disabled');
+                // Update timer display
+                const breakMinutes = Math.floor(this.selectedBreakTime / 60);
+                const breakSeconds = this.selectedBreakTime % 60;
+                this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
+            }
+        });
         
         // Break time listeners
         this.breakRadios.forEach(radio => {
@@ -73,6 +97,12 @@ class PomodoroTimer {
                     this.selectedBreakTime = null;
                     this.customTimeInput.disabled = true;
                     this.breakCountdown.textContent = '--:--';
+                    if (this.isRestMode) {
+                        this.breakTimer.textContent = 'select a break duration';
+                        // Disable the button when no duration is selected
+                        this.restModeButton.classList.remove('ready-to-start');
+                        this.restModeButton.classList.add('disabled');
+                    }
                 } else {
                     // If not checked, check it and uncheck others
                     this.breakRadios.forEach(otherRadio => {
@@ -95,12 +125,16 @@ class PomodoroTimer {
         this.customTimeInput.addEventListener('change', () => {
             if (document.getElementById('break-custom').checked) {
                 this.selectedBreakTime = parseInt(this.customTimeInput.value) * 60;
-                // If in rest mode, update the break timer display and start the timer
+                // If in rest mode, update the break timer display but don't start the timer
                 if (this.isRestMode) {
                     const breakMinutes = Math.floor(this.selectedBreakTime / 60);
                     const breakSeconds = this.selectedBreakTime % 60;
                     this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
-                    this.start(); // Start the timer when a time is selected in rest mode
+                    // Don't automatically start the timer
+                    
+                    // Update the rest mode button to look ready to start
+                    this.restModeButton.classList.add('ready-to-start');
+                    this.restModeButton.classList.remove('disabled');
                 }
             }
         });
@@ -155,12 +189,16 @@ class PomodoroTimer {
         // Set lastBreakTime to current time when break time is changed
         this.lastBreakTime = this.secondsElapsed;
         
-        // If in rest mode, update the break timer display and start the break timer
+        // If in rest mode, update the break timer display but don't start the timer
         if (this.isRestMode) {
             const breakMinutes = Math.floor(this.selectedBreakTime / 60);
             const breakSeconds = this.selectedBreakTime % 60;
             this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
-            this.startBreakTimer(); // Start the break timer when a time is selected in rest mode
+            // Don't automatically start the timer
+            
+            // Update the rest mode button to look ready to start
+            this.restModeButton.classList.add('ready-to-start');
+            this.restModeButton.classList.remove('disabled');
         }
     }
     
@@ -179,6 +217,8 @@ class PomodoroTimer {
             this.toggleButton.style.backgroundColor = '#ff8900';
             this.toggleButton.style.color = 'white';
             this.restModeButton.textContent = 'Start Chillin';
+            this.restModeButton.classList.remove('ready-to-start');
+            this.restModeButton.classList.add('disabled');
             document.querySelector('.container').classList.add('in-rest-mode');
             document.querySelector('.container').classList.remove('in-cave');
             // Show timer in rest mode with light teal color
@@ -190,10 +230,19 @@ class PomodoroTimer {
             // Change break button text
             this.collapseToggle.textContent = 'End break after...';
             
-            // If a break time is selected, start the break timer
-            if (this.selectedBreakTime !== null) {
-                this.startBreakTimer();
-            }
+            // Reset break timer display and selection
+            this.breakTimer.textContent = 'select a break duration';
+            this.selectedBreakTime = null;
+            
+            // Uncheck all radio buttons to force user selection
+            this.breakRadios.forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.closest('.break-toggle').querySelector('.custom-radio').classList.remove('checked');
+            });
+            this.customTimeInput.disabled = true;
+            
+            // Expand break settings to show the options
+            this.breakSettings.classList.remove('collapsed');
         }
     }
     
@@ -202,6 +251,13 @@ class PomodoroTimer {
             // Enter pain cave from rest mode
             this.isRestMode = false;
             this.secondsElapsed = this.savedTime; // Restore saved time
+            
+            // Stop break timer if it's running
+            if (this.breakTimerId) {
+                cancelAnimationFrame(this.breakTimerId);
+                this.breakTimerId = null;
+            }
+            
             this.start();
             this.caveImage.src = 'images/PAIN CAVE.png';
             this.caveImage.alt = 'Pain Cave';
@@ -265,76 +321,49 @@ class PomodoroTimer {
     }
     
     startBreakTimer() {
-        if (!this.isRunning) {
-            this.isRunning = true;
-            this.startTime = new Date(); // Record start time
+        // Cancel any existing break timer
+        if (this.breakTimerId) {
+            cancelAnimationFrame(this.breakTimerId);
+        }
+        
+        this.breakStartTime = new Date(); // Record break start time
+        this.breakTimeElapsed = 0;
+        
+        const updateBreakTimer = () => {
+            // Calculate elapsed time based on actual time passed
+            const now = new Date();
+            const elapsed = Math.floor((now - this.breakStartTime) / 1000);
+            this.breakTimeElapsed = elapsed;
             
-            const updateTimer = () => {
-                if (!this.isRunning) return;
-                
-                // Calculate elapsed time based on actual time passed
-                const now = new Date();
-                const elapsed = Math.floor((now - this.startTime) / 1000);
-                this.secondsElapsed = elapsed;
-                
-                if (this.isRestMode) {
-                    // Only update the break timer display in rest mode
-                    const timeUntilEnd = this.selectedBreakTime - (this.secondsElapsed - this.savedTime);
-                    if (timeUntilEnd > 0) {
-                        const breakMinutes = Math.floor(timeUntilEnd / 60);
-                        const breakSeconds = timeUntilEnd % 60;
-                        this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
-                    } else {
-                        this.breakTimer.textContent = 'break ends in --:--';
-                        this.pause();
-                    }
-                }
-                
-                this.updateDisplay();
-                
-                // Check for break time only if a break time is selected
-                if (this.selectedBreakTime !== null && 
-                    this.secondsElapsed >= this.selectedBreakTime && 
-                    this.secondsElapsed - this.lastBreakTime >= this.selectedBreakTime) {
+            if (this.isRestMode && this.selectedBreakTime !== null) {
+                // Only update the break timer display in rest mode
+                const timeUntilEnd = this.selectedBreakTime - this.breakTimeElapsed;
+                if (timeUntilEnd > 0) {
+                    const breakMinutes = Math.floor(timeUntilEnd / 60);
+                    const breakSeconds = timeUntilEnd % 60;
+                    this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
+                } else {
+                    this.breakTimer.textContent = 'break ends in --:--';
                     
-                    console.log('Break time reached:', {
-                        secondsElapsed: this.secondsElapsed,
-                        selectedBreakTime: this.selectedBreakTime,
-                        lastBreakTime: this.lastBreakTime
-                    });
-                    
-                    const totalMinutes = Math.floor(this.secondsElapsed / 60);
-                    const hours = Math.floor(totalMinutes / 60);
-                    const minutes = totalMinutes % 60;
-                    
-                    let timeString = '';
-                    if (hours > 0) {
-                        timeString = `${hours} hour${hours > 1 ? 's' : ''}`;
-                        if (minutes > 0) {
-                            timeString += ` and ${minutes} minute${minutes > 1 ? 's' : ''}`;
-                        }
-                    } else {
-                        timeString = `${minutes} minute${minutes > 1 ? 's' : ''}`;
-                    }
-                    
-                    this.breakMessage.innerHTML = `you've been in the pain cave for:<br><span class="time-highlight">${timeString}</span>`;
-                    this.breakModal.style.display = 'block';
-                    this.lastBreakTime = this.secondsElapsed;
-                    this.pause();
-                    
+                    // Play sound when break is over
                     if (this.soundEnabled) {
                         this.magicalSound.currentTime = 0;
                         this.magicalSound.play().catch(error => {
                             console.log('Error playing sound:', error);
                         });
                     }
+                    
+                    // Stop the break timer
+                    cancelAnimationFrame(this.breakTimerId);
+                    this.breakTimerId = null;
+                    return;
                 }
-                
-                this.timerId = requestAnimationFrame(updateTimer);
-            };
+            }
             
-            this.timerId = requestAnimationFrame(updateTimer);
-        }
+            this.breakTimerId = requestAnimationFrame(updateBreakTimer);
+        };
+        
+        this.breakTimerId = requestAnimationFrame(updateBreakTimer);
     }
     
     start() {
@@ -408,7 +437,15 @@ class PomodoroTimer {
     
     reset() {
         this.pause();
+        
+        // Also clear any break timer
+        if (this.breakTimerId) {
+            cancelAnimationFrame(this.breakTimerId);
+            this.breakTimerId = null;
+        }
+        
         this.secondsElapsed = 0;
+        this.breakTimeElapsed = 0;
         this.lastBreakTime = 0;
         this.selectedBreakTime = null; // Clear break time selection
         this.isRestMode = false; // Reset rest mode state
@@ -417,13 +454,17 @@ class PomodoroTimer {
         this.toggleButton.style.backgroundColor = '#ff8900'; // Orange
         this.toggleButton.style.color = 'white';
         this.restModeButton.textContent = 'Rest Mode';
+        this.restModeButton.classList.remove('ready-to-start', 'disabled');
         this.breakCountdown.textContent = '--:--';
+        // Reset the break timer text
+        this.breakTimer.textContent = 'break ends in --:--';
         document.querySelector('.container').classList.remove('in-cave', 'in-rest-mode'); // Exit both pain cave and rest mode states
         // Remove inline color style from timer
         this.timeDisplay.style.color = '';
         // Show timers
         this.timeDisplay.style.display = 'block';
         this.breakCountdown.parentElement.style.display = 'block';
+        this.breakTimer.style.display = 'none';
         // Reset break time selection
         this.breakRadios.forEach(checkbox => {
             checkbox.checked = false;
@@ -472,17 +513,7 @@ class PomodoroTimer {
             }
         }
         
-        // Update break timer only in rest mode
-        if (this.isRestMode && this.selectedBreakTime !== null) {
-            const timeUntilEnd = this.selectedBreakTime - (this.secondsElapsed - this.savedTime);
-            if (timeUntilEnd > 0) {
-                const breakMinutes = Math.floor(timeUntilEnd / 60);
-                const breakSeconds = timeUntilEnd % 60;
-                this.breakTimer.textContent = `break ends in ${breakMinutes.toString().padStart(2, '0')}:${breakSeconds.toString().padStart(2, '0')}`;
-            } else {
-                this.breakTimer.textContent = 'break ends in --:--';
-            }
-        }
+        // We don't need to update break timer here anymore since it's handled in startBreakTimer
     }
     
     toggleCollapse() {
