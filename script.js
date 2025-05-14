@@ -7,6 +7,7 @@ class PomodoroTimer {
         this.selectedBreakTime = null;
         this.isRestMode = false;
         this.savedTime = 0;
+        this.startTime = null; // Add startTime to track when timer started
         
         // Sound settings
         this.soundEnabled = true;
@@ -239,6 +240,8 @@ class PomodoroTimer {
         } else {
             // Exit pain cave
             this.pause();
+            // Save the current time before exiting
+            this.savedTime = this.secondsElapsed;
             this.toggleButton.textContent = 'Enter Pain Cave';
             this.toggleButton.style.backgroundColor = '#ff8900';
             this.toggleButton.style.color = 'white';
@@ -264,7 +267,16 @@ class PomodoroTimer {
     startBreakTimer() {
         if (!this.isRunning) {
             this.isRunning = true;
-            this.timerId = setInterval(() => {
+            this.startTime = new Date(); // Record start time
+            
+            const updateTimer = () => {
+                if (!this.isRunning) return;
+                
+                // Calculate elapsed time based on actual time passed
+                const now = new Date();
+                const elapsed = Math.floor((now - this.startTime) / 1000);
+                this.secondsElapsed = elapsed;
+                
                 if (this.isRestMode) {
                     // Only update the break timer display in rest mode
                     const timeUntilEnd = this.selectedBreakTime - (this.secondsElapsed - this.savedTime);
@@ -276,58 +288,8 @@ class PomodoroTimer {
                         this.breakTimer.textContent = 'break ends in --:--';
                         this.pause();
                     }
-                } else {
-                    // Normal timer behavior for pain cave mode
-                    this.secondsElapsed++;
-                    this.updateDisplay();
-                    
-                    // Check for break time only if a break time is selected
-                    if (this.selectedBreakTime !== null && 
-                        this.secondsElapsed >= this.selectedBreakTime && 
-                        this.secondsElapsed - this.lastBreakTime >= this.selectedBreakTime) {
-                        
-                        console.log('Break time reached:', {
-                            secondsElapsed: this.secondsElapsed,
-                            selectedBreakTime: this.selectedBreakTime,
-                            lastBreakTime: this.lastBreakTime
-                        });
-                        
-                        const totalMinutes = Math.floor(this.secondsElapsed / 60);
-                        const hours = Math.floor(totalMinutes / 60);
-                        const minutes = totalMinutes % 60;
-                        
-                        let timeString = '';
-                        if (hours > 0) {
-                            timeString = `${hours} hour${hours > 1 ? 's' : ''}`;
-                            if (minutes > 0) {
-                                timeString += ` and ${minutes} minute${minutes > 1 ? 's' : ''}`;
-                            }
-                        } else {
-                            timeString = `${minutes} minute${minutes > 1 ? 's' : ''}`;
-                        }
-                        
-                        this.breakMessage.innerHTML = `you've been in the pain cave for:<br><span class="time-highlight">${timeString}</span>`;
-                        this.breakModal.style.display = 'block';
-                        this.lastBreakTime = this.secondsElapsed;
-                        this.pause();  // Pause the timer when the modal appears
-                        
-                        if (this.soundEnabled) {
-                            this.magicalSound.currentTime = 0;
-                            this.magicalSound.play().catch(error => {
-                                console.log('Error playing sound:', error);
-                            });
-                        }
-                    }
                 }
-            }, 1000);
-        }
-    }
-    
-    start() {
-        if (!this.isRunning) {
-            this.isRunning = true;
-            this.timerId = setInterval(() => {
-                this.secondsElapsed++;
+                
                 this.updateDisplay();
                 
                 // Check for break time only if a break time is selected
@@ -358,7 +320,7 @@ class PomodoroTimer {
                     this.breakMessage.innerHTML = `you've been in the pain cave for:<br><span class="time-highlight">${timeString}</span>`;
                     this.breakModal.style.display = 'block';
                     this.lastBreakTime = this.secondsElapsed;
-                    this.pause();  // Pause the timer when the modal appears
+                    this.pause();
                     
                     if (this.soundEnabled) {
                         this.magicalSound.currentTime = 0;
@@ -367,14 +329,80 @@ class PomodoroTimer {
                         });
                     }
                 }
-            }, 1000);
+                
+                this.timerId = requestAnimationFrame(updateTimer);
+            };
+            
+            this.timerId = requestAnimationFrame(updateTimer);
+        }
+    }
+    
+    start() {
+        if (!this.isRunning) {
+            this.isRunning = true;
+            this.startTime = new Date(); // Record start time
+            // Adjust startTime to account for existing elapsed time
+            this.startTime = new Date(new Date().getTime() - (this.secondsElapsed * 1000));
+            
+            const updateTimer = () => {
+                if (!this.isRunning) return;
+                
+                // Calculate elapsed time based on actual time passed
+                const now = new Date();
+                const elapsed = Math.floor((now - this.startTime) / 1000);
+                this.secondsElapsed = elapsed;
+                
+                this.updateDisplay();
+                
+                // Check for break time only if a break time is selected
+                if (this.selectedBreakTime !== null && 
+                    this.secondsElapsed >= this.selectedBreakTime && 
+                    this.secondsElapsed - this.lastBreakTime >= this.selectedBreakTime) {
+                    
+                    console.log('Break time reached:', {
+                        secondsElapsed: this.secondsElapsed,
+                        selectedBreakTime: this.selectedBreakTime,
+                        lastBreakTime: this.lastBreakTime
+                    });
+                    
+                    const totalMinutes = Math.floor(this.secondsElapsed / 60);
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    
+                    let timeString = '';
+                    if (hours > 0) {
+                        timeString = `${hours} hour${hours > 1 ? 's' : ''}`;
+                        if (minutes > 0) {
+                            timeString += ` and ${minutes} minute${minutes > 1 ? 's' : ''}`;
+                        }
+                    } else {
+                        timeString = `${minutes} minute${minutes > 1 ? 's' : ''}`;
+                    }
+                    
+                    this.breakMessage.innerHTML = `you've been in the pain cave for:<br><span class="time-highlight">${timeString}</span>`;
+                    this.breakModal.style.display = 'block';
+                    this.lastBreakTime = this.secondsElapsed;
+                    this.pause();
+                    
+                    if (this.soundEnabled) {
+                        this.magicalSound.currentTime = 0;
+                        this.magicalSound.play().catch(error => {
+                            console.log('Error playing sound:', error);
+                        });
+                    }
+                }
+                
+                this.timerId = requestAnimationFrame(updateTimer);
+            };
+            
+            this.timerId = requestAnimationFrame(updateTimer);
         }
     }
     
     pause() {
         if (this.isRunning) {
             this.isRunning = false;
-            clearInterval(this.timerId);
+            cancelAnimationFrame(this.timerId);
         }
     }
     
@@ -411,9 +439,22 @@ class PomodoroTimer {
     }
     
     updateDisplay() {
-        const minutes = Math.floor(this.secondsElapsed / 60);
-        const seconds = this.secondsElapsed % 60;
-        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        const totalSeconds = this.secondsElapsed;
+        let timeString;
+        
+        if (totalSeconds >= 3600) {
+            // Format as HH:MM:SS when over 60 minutes
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+            // Format as MM:SS when under 60 minutes
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
         this.timeDisplay.textContent = timeString;
         
         // Update browser tab title with timer
