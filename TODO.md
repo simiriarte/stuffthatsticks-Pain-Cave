@@ -4,6 +4,6 @@
 - add rest mode timer
 - add timer for "time until next break"
 - add end session button (confetti?)
-- ~~remove automatic break pop up at 5 minutes~~
+
 - add pain cave end session button 
-- allow unselection for radio buttons
+

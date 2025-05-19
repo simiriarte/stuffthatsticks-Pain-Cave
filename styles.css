@@ -144,6 +144,10 @@ h1 {
 .timer {
     margin-bottom: 2rem;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding-bottom: 2.5rem;
 }
 
 .cave-image {
@@ -984,8 +988,8 @@ button,
 /* Feedback Button Styles */
 .feedback-button {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 1rem;
+    right: 1rem;
     background-color: #0097f2;
     color: white;
     border: none;
@@ -1004,6 +1008,28 @@ button,
 .feedback-button:hover {
     transform: translateY(-3px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.website-link {
+    position: absolute;
+    bottom: -1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #0097f2; /* Light blue for light mode */
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-family: 'Figtree', sans-serif;
+    transition: color 0.3s ease;
+}
+
+/* Dark mode (in-cave) styles */
+.container.in-cave .website-link {
+    color: #1abc9c; /* Teal for dark mode */
+}
+
+/* Rest mode styles */
+.container.in-rest-mode .website-link {
+    color: white; /* White for rest mode */
 }
 
 .container.in-cave .feedback-button {
