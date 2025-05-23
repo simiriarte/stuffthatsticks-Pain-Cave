@@ -537,17 +537,25 @@ class PomodoroTimer {
                         });
                     }
                 }
-                
-                this.timerId = requestAnimationFrame(updateTimer);
             };
             
-            this.timerId = requestAnimationFrame(updateTimer);
+            // Use setInterval for more reliable timing when tab is not in focus
+            this.timerId = setInterval(updateTimer, 1000);
+            
+            // Also use requestAnimationFrame for smoother updates when tab is in focus
+            const smoothUpdate = () => {
+                if (!this.isRunning) return;
+                updateTimer();
+                requestAnimationFrame(smoothUpdate);
+            };
+            requestAnimationFrame(smoothUpdate);
         }
     }
     
     pause() {
         if (this.isRunning) {
             this.isRunning = false;
+            clearInterval(this.timerId);
             cancelAnimationFrame(this.timerId);
         }
     }
