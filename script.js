@@ -706,6 +706,4 @@ function setBreakButtonWidth() {
 
 // Call on load and resize
 window.addEventListener('load', setBreakButtonWidth);
-window.addEventListener('resize', setBreakButtonWidth);
-
-window.open('https://simiriarte.github.io/stuffthatsticks-Pain-Cave/', '_blank'); 
+window.addEventListener('resize', setBreakButtonWidth); 
