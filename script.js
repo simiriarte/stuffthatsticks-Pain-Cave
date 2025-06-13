@@ -167,11 +167,13 @@ class PomodoroTimer {
             // Update the custom radio when the actual radio changes
             radio.addEventListener('change', updateCustomRadio);
             
-            // Initial state
-            updateCustomRadio();
-        });
-        
-        this.customTimeInput.addEventListener('change', () => {
+                    // Initial state
+        updateCustomRadio();
+    });
+    
+    this.checkForESITask();
+    
+    this.customTimeInput.addEventListener('change', () => {
             if (document.getElementById('break-custom').checked) {
                 this.selectedBreakTime = parseInt(this.customTimeInput.value) * 60;
                 // If in rest mode, update the break timer display but don't start the timer
@@ -673,6 +675,19 @@ class PomodoroTimer {
             this.intentionDisplay.style.display = 'none';
         }
     }
+    
+    // Check for task from ESI Filter and auto-populate
+    checkForESITask() {
+        console.log('checkForESITask running');
+        const painCaveTask = localStorage.getItem('painCaveTask');
+        if (painCaveTask) {
+            this.intentionInput.value = painCaveTask;
+            this.intention = painCaveTask;
+            this.updateIntentionDisplay();
+            localStorage.removeItem('painCaveTask');
+            console.log('ESI Filter task loaded:', painCaveTask);
+        }
+    }
 }
 
 // Initialize the timer when the page loads
@@ -691,4 +706,6 @@ function setBreakButtonWidth() {
 
 // Call on load and resize
 window.addEventListener('load', setBreakButtonWidth);
-window.addEventListener('resize', setBreakButtonWidth); 
+window.addEventListener('resize', setBreakButtonWidth);
+
+window.open('https://simiriarte.github.io/stuffthatsticks-Pain-Cave/', '_blank'); 
